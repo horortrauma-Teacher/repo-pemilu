@@ -20,13 +20,22 @@
     <!-- HALAMAN LOGIN -->
     <div id="login-section" class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
         <div class="text-center mb-6 flex flex-col items-center">
-            <!-- GANTI "logo.png" DI BAWAH INI DENGAN NAMA FILE LOGO ANDA -->
             <img src="logo.png" alt="Logo Daar el-Qolam" class="w-24 h-auto mb-4" onerror="this.style.display='none'">
-
             <h1 class="text-2xl font-bold text-slate-800 leading-tight">Pemilihan Umum ISMI dan KGP</h1>
             <p class="text-slate-500 mt-2 font-medium">Daar el-Qolam 2</p>
         </div>
         
+        <!-- Pilihan Kategori Putra/Putri -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-slate-700 mb-2">Pilih Kategori Pemilih</label>
+            <select id="kategori-gender" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-lg font-medium">
+                <option value="">-- Pilih Putra / Putri --</option>
+                <option value="putra">Kandidat Putra</option>
+                <option value="putri">Kandidat Putri</option>
+            </select>
+        </div>
+
+        <!-- Pilihan ID -->
         <div class="mb-6">
             <label class="block text-sm font-medium text-slate-700 mb-2">Silakan pilih ID Anda (001 - 200)</label>
             <select id="voter-id" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-lg font-medium"></select>
@@ -48,7 +57,7 @@
         <div class="flex justify-between items-center mb-8 border-b pb-4">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">Surat Suara Digital</h1>
-                <p class="text-slate-500 text-sm mt-1">Silakan pilih satu kandidat untuk masing-masing kategori.</p>
+                <p class="text-slate-500 text-sm mt-1" id="subtitle-voting">Silakan pilih kandidat Anda.</p>
             </div>
             <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold border border-blue-100">
                 ID: <span id="label-id"></span>
@@ -114,35 +123,46 @@
     </div>
 
 <script>
-    // =========================================================================
-    // KONFIGURASI SUPABASE (GANTI DENGAN DATA DARI DASHBOARD SUPABASE ANDA!)
-    // =========================================================================
+    // KONFIGURASI SUPABASE (Sudah diatur sesuai data Anda)
     const supabaseUrl = 'https://qyqxtqewznjupclszxrz.supabase.co'; 
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5cXh0cWV3em5qdXBjbHN6eHJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0NjE3ODMsImV4cCI6MjEwNjAzNzc4M30.9eAx-q6I9lfTuKKsQk_Qe_xj64H5d5y7Xfm1XoH-Ed4'; 
     
-    // Inisialisasi Klien Supabase
     const { createClient } = supabase;
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-    // Identitas Bilik (Bisa Anda ubah manual di tiap laptop menjadi "Bilik 2", "Bilik 3", dst)
     const namaBilik = "Bilik 1"; 
-    // =========================================================================
 
-    // Data Kandidat
-    let k_ismi = [
-        { id: 'i1', nama: "Faathir Muhamad Raihan", suara: 0, image: "Faathir.jpg.jpeg" },
-        { id: 'i2', nama: "Abyaz Rasha Afni Putra", suara: 0, image: "Abyaz.jpg.jpeg" },
-        { id: 'i3', nama: "Muhammad Azzam As Shiddiq Wibowo", suara: 0, image: "Azzam.jpg.jpeg" }
+    // ==========================================
+    // DATA KANDIDAT PUTRA
+    // ==========================================
+    let k_ismi_pa = [
+        { id: 'i1_pa', nama: "Faathir Muhamad Raihan", suara: 0, image: "Faathir.jpg.jpeg" },
+        { id: 'i2_pa', nama: "Abyaz Rasha Afni Putra", suara: 0, image: "Abyaz.jpg.jpeg" },
+        { id: 'i3_pa', nama: "Muhammad Azzam As Shiddiq Wibowo", suara: 0, image: "Azzam.jpg.jpeg" }
+    ];
+    let k_kgp_pa = [
+        { id: 'k1_pa', nama: "Regan Habibullah Alfarisi", suara: 0, image: "Regan.jpg.jpeg" },
+        { id: 'k2_pa', nama: "Muhammad Kemal Sajidsyah", suara: 0, image: "Kemal.jpg.jpeg" },
+        { id: 'k3_pa', nama: "Aksan Hidayatullah", suara: 0, image: "Aksan.jpg.jpeg" }
     ];
 
-    let k_kgp = [
-        { id: 'k1', nama: "Regan Habibullah Alfarisi", suara: 0, image: "Regan.jpg.jpeg" },
-        { id: 'k2', nama: "Muhammad Kemal Sajidsyah", suara: 0, image: "Kemal.jpg.jpeg" },
-        { id: 'k3', nama: "Aksan Hidayatullah", suara: 0, image: "Aksan.jpg.jpeg" }
+    // ==========================================
+    // DATA KANDIDAT PUTRI
+    // ==========================================
+    let k_ismi_pi = [
+        { id: 'i1_pi', nama: "Nabila", suara: 0, image: "Nabila_ismi.jpeg" },
+        { id: 'i2_pi', nama: "Nafeeza", suara: 0, image: "nafeeza_ismi.jpeg" },
+        { id: 'i3_pi', nama: "Naurah", suara: 0, image: "Naurah_ismi.jpeg" }
+    ];
+    let k_kgp_pi = [
+        { id: 'k1_pi', nama: "Dzakiyah", suara: 0, image: "Dzakiyah_kgp.jpeg" },
+        { id: 'k2_pi', nama: "Putri", suara: 0, image: "Putri_kgp.jpeg" },
+        { id: 'k3_pi', nama: "Rindi", suara: 0, image: "Rindi_kgp.jpeg" }
     ];
     
     let pemilih = Array.from({length: 200}, (_, i) => String(i+1).padStart(3, '0'));
     let idAktif = null;
+    let genderAktif = null; // Menyimpan status apakah user memilih putra atau putri
     let pilIsmi = null;
     let pilKgp = null;
 
@@ -150,8 +170,9 @@
         let sel = document.getElementById("voter-id");
         sel.innerHTML = '<option value="">-- Pilih ID Anda --</option>';
         pemilih.forEach(p => { sel.innerHTML += `<option value="${p}">${p}</option>`; });
-        renderKandidat('ismi-list', k_ismi, 'ismi');
-        renderKandidat('kgp-list', k_kgp, 'kgp');
+        
+        // Reset dropdown
+        document.getElementById("kategori-gender").value = "";
     }
 
     function renderKandidat(elId, data, tipe) {
@@ -175,8 +196,12 @@
         if(tipe === 'ismi') pilIsmi = id;
         if(tipe === 'kgp') pilKgp = id;
         
-        renderKandidat('ismi-list', k_ismi, 'ismi');
-        renderKandidat('kgp-list', k_kgp, 'kgp');
+        // Render ulang berdasarkan gender yang sedang aktif
+        const dataIsmi = genderAktif === 'putra' ? k_ismi_pa : k_ismi_pi;
+        const dataKgp = genderAktif === 'putra' ? k_kgp_pa : k_kgp_pi;
+        
+        renderKandidat('ismi-list', dataIsmi, 'ismi');
+        renderKandidat('kgp-list', dataKgp, 'kgp');
         
         const btn = document.getElementById("btn-kirim");
         if(pilIsmi && pilKgp) {
@@ -187,17 +212,26 @@
     }
 
     function login() {
+        genderAktif = document.getElementById("kategori-gender").value;
         idAktif = document.getElementById("voter-id").value;
+        
+        if(!genderAktif) return showModal("Peringatan", "Silakan pilih Kategori Putra/Putri terlebih dahulu!", [{text: "Tutup", class: "bg-blue-600 text-white"}]);
         if(!idAktif) return showModal("Peringatan", "Silakan pilih ID Pemilih terlebih dahulu!", [{text: "Tutup", class: "bg-blue-600 text-white"}]);
         
         document.getElementById("label-id").innerText = idAktif;
+        document.getElementById("subtitle-voting").innerText = `Kategori Pemilihan: Santri ${genderAktif === 'putra' ? 'Putra' : 'Putri'}`;
+        
         document.getElementById("login-section").classList.add("hidden");
         document.getElementById("voting-section").classList.remove("hidden");
-        pilIsmi = null; pilKgp = null; pilih(null, null);
+        
+        pilIsmi = null; 
+        pilKgp = null; 
+        pilih(null, null); // Render list yang benar
     }
 
     function logout() {
         idAktif = null;
+        genderAktif = null;
         document.getElementById("login-section").classList.remove("hidden");
         document.getElementById("voting-section").classList.add("hidden");
         initData();
@@ -211,14 +245,22 @@
     }
 
     async function prosesKirimSuara() {
-        // 1. Simpan di Rekapan Lokal (Per Bilik)
-        k_ismi.find(k => k.id === pilIsmi).suara++;
-        k_kgp.find(k => k.id === pilKgp).suara++;
+        // 1. Tentukan array mana yang di-update (Putra atau Putri)
+        const active_k_ismi = genderAktif === 'putra' ? k_ismi_pa : k_ismi_pi;
+        const active_k_kgp = genderAktif === 'putra' ? k_kgp_pa : k_kgp_pi;
+        
+        // 2. Simpan di Rekapan Lokal
+        active_k_ismi.find(k => k.id === pilIsmi).suara++;
+        active_k_kgp.find(k => k.id === pilKgp).suara++;
         pemilih = pemilih.filter(p => p !== idAktif);
         
-        // 2. Ubah modal menjadi tampilan Loading
+        // Label Kategori untuk Supabase
+        const labelIsmi = genderAktif === 'putra' ? 'ISMI Putra' : 'ISMI Putri';
+        const labelKgp = genderAktif === 'putra' ? 'KGP Putra' : 'KGP Putri';
+
+        // 3. Loading
         const modalContent = document.getElementById("modal-content-area");
-        const originalHTML = modalContent.innerHTML; // Simpan UI asli
+        const originalHTML = modalContent.innerHTML;
         modalContent.innerHTML = `
             <div class="flex flex-col items-center justify-center py-6">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-4"></div>
@@ -227,18 +269,17 @@
             </div>
         `;
 
-        // 3. Kirim ke Database Supabase
+        // 4. Kirim ke Database Supabase
         try {
             const { error } = await supabaseClient
                 .from('suara_pemilu')
                 .insert([
-                    { kandidat_id: pilIsmi, kategori: 'ISMI', bilik: namaBilik },
-                    { kandidat_id: pilKgp, kategori: 'KGP', bilik: namaBilik }
+                    { kandidat_id: pilIsmi, kategori: labelIsmi, bilik: namaBilik },
+                    { kandidat_id: pilKgp, kategori: labelKgp, bilik: namaBilik }
                 ]);
 
             if (error) throw error;
 
-            // Sukses! Kembalikan UI modal dan tampilkan pesan berhasil
             modalContent.innerHTML = originalHTML;
             closeModal();
             setTimeout(() => {
@@ -249,7 +290,7 @@
 
         } catch (err) {
             console.error("Error Supabase:", err);
-            modalContent.innerHTML = originalHTML; // Kembalikan UI modal
+            modalContent.innerHTML = originalHTML; 
             closeModal();
             
             setTimeout(() => {
@@ -258,11 +299,11 @@
                 ]);
             }, 200);
             
-            // Rollback data lokal karena gagal
-            k_ismi.find(k => k.id === pilIsmi).suara--;
-            k_kgp.find(k => k.id === pilKgp).suara--;
+            // Rollback data lokal
+            active_k_ismi.find(k => k.id === pilIsmi).suara--;
+            active_k_kgp.find(k => k.id === pilKgp).suara--;
             pemilih.push(idAktif); 
-            pemilih.sort(); // Urutkan ID lagi
+            pemilih.sort(); 
         }
     }
 
@@ -294,8 +335,10 @@
     }
 
     function tampilRekap() {
-        let h = `<h3 class="text-xl font-bold text-blue-600 mb-4 pb-2 border-b">Hasil ISMI (Bilik Ini)</h3>${buatTabel(k_ismi)}
-                 <h3 class="text-xl font-bold text-emerald-600 mb-4 pb-2 border-b mt-8">Hasil KGP (Bilik Ini)</h3>${buatTabel(k_kgp)}
+        let h = `<h3 class="text-xl font-bold text-blue-600 mb-2 pb-1 border-b">Hasil ISMI (Putra)</h3>${buatTabel(k_ismi_pa)}
+                 <h3 class="text-xl font-bold text-blue-400 mb-2 pb-1 border-b mt-6">Hasil ISMI (Putri)</h3>${buatTabel(k_ismi_pi)}
+                 <h3 class="text-xl font-bold text-emerald-600 mb-2 pb-1 border-b mt-6">Hasil KGP (Putra)</h3>${buatTabel(k_kgp_pa)}
+                 <h3 class="text-xl font-bold text-emerald-400 mb-2 pb-1 border-b mt-6">Hasil KGP (Putri)</h3>${buatTabel(k_kgp_pi)}
                  <div class="mt-6 p-4 bg-slate-50 border rounded-lg text-center"><p class="text-lg">Total Suara Masuk: <span class="text-blue-600 font-bold">${200 - pemilih.length}</span> / 200</p></div>`;
         document.getElementById("rekap-data").innerHTML = h;
     }
@@ -317,14 +360,16 @@
                 csv += `${kat},${i+1},${k.nama},${k.suara},${i === 0 ? "Ketua" : (i === 1 ? "Wakil" : "-")}\n`;
             });
         };
-        isiCSV(k_ismi, "ISMI"); isiCSV(k_kgp, "KGP");
+        isiCSV(k_ismi_pa, "ISMI Putra"); 
+        isiCSV(k_ismi_pi, "ISMI Putri"); 
+        isiCSV(k_kgp_pa, "KGP Putra");
+        isiCSV(k_kgp_pi, "KGP Putri");
         let a = document.createElement("a");
         a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
         a.download = `Rekapan_Lokal_${namaBilik}_DaarElQolam.csv`;
         a.click();
     }
 
-    // -- SISTEM MODAL --
     const modal = document.getElementById("custom-modal");
     function showModal(title, desc, buttons) {
         document.getElementById("modal-title").innerText = title;
