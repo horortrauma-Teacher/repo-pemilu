@@ -123,7 +123,7 @@
     </div>
 
 <script>
-    // KONFIGURASI SUPABASE (Sudah diatur sesuai data Anda)
+    // KONFIGURASI SUPABASE
     const supabaseUrl = 'https://qyqxtqewznjupclszxrz.supabase.co'; 
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5cXh0cWV3em5qdXBjbHN6eHJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0NjE3ODMsImV4cCI6MjEwNjAzNzc4M30.9eAx-q6I9lfTuKKsQk_Qe_xj64H5d5y7Xfm1XoH-Ed4'; 
     
@@ -132,9 +132,7 @@
 
     const namaBilik = "Bilik 1"; 
 
-    // ==========================================
     // DATA KANDIDAT PUTRA
-    // ==========================================
     let k_ismi_pa = [
         { id: 'i1_pa', nama: "Faathir Muhamad Raihan", suara: 0, image: "Faathir.jpg.jpeg" },
         { id: 'i2_pa', nama: "Abyaz Rasha Afni Putra", suara: 0, image: "Abyaz.jpg.jpeg" },
@@ -146,9 +144,7 @@
         { id: 'k3_pa', nama: "Aksan Hidayatullah", suara: 0, image: "Aksan.jpg.jpeg" }
     ];
 
-    // ==========================================
     // DATA KANDIDAT PUTRI
-    // ==========================================
     let k_ismi_pi = [
         { id: 'i1_pi', nama: "Nabila", suara: 0, image: "Nabila_ismi.jpeg" },
         { id: 'i2_pi', nama: "Nafeeza", suara: 0, image: "nafeeza_ismi.jpeg" },
@@ -162,7 +158,7 @@
     
     let pemilih = Array.from({length: 200}, (_, i) => String(i+1).padStart(3, '0'));
     let idAktif = null;
-    let genderAktif = null; // Menyimpan status apakah user memilih putra atau putri
+    let genderAktif = null; 
     let pilIsmi = null;
     let pilKgp = null;
 
@@ -171,7 +167,6 @@
         sel.innerHTML = '<option value="">-- Pilih ID Anda --</option>';
         pemilih.forEach(p => { sel.innerHTML += `<option value="${p}">${p}</option>`; });
         
-        // Reset dropdown
         document.getElementById("kategori-gender").value = "";
     }
 
@@ -196,7 +191,6 @@
         if(tipe === 'ismi') pilIsmi = id;
         if(tipe === 'kgp') pilKgp = id;
         
-        // Render ulang berdasarkan gender yang sedang aktif
         const dataIsmi = genderAktif === 'putra' ? k_ismi_pa : k_ismi_pi;
         const dataKgp = genderAktif === 'putra' ? k_kgp_pa : k_kgp_pi;
         
@@ -226,7 +220,7 @@
         
         pilIsmi = null; 
         pilKgp = null; 
-        pilih(null, null); // Render list yang benar
+        pilih(null, null); 
     }
 
     function logout() {
@@ -244,23 +238,23 @@
         ]);
     }
 
+    // ALUR PENGIRIMAN OTOMATIS (AUTO-REDIRECT)
     async function prosesKirimSuara() {
-        // 1. Tentukan array mana yang di-update (Putra atau Putri)
         const active_k_ismi = genderAktif === 'putra' ? k_ismi_pa : k_ismi_pi;
         const active_k_kgp = genderAktif === 'putra' ? k_kgp_pa : k_kgp_pi;
         
-        // 2. Simpan di Rekapan Lokal
+        // Simpan lokal
         active_k_ismi.find(k => k.id === pilIsmi).suara++;
         active_k_kgp.find(k => k.id === pilKgp).suara++;
         pemilih = pemilih.filter(p => p !== idAktif);
         
-        // Label Kategori untuk Supabase
         const labelIsmi = genderAktif === 'putra' ? 'ISMI Putra' : 'ISMI Putri';
         const labelKgp = genderAktif === 'putra' ? 'KGP Putra' : 'KGP Putri';
 
-        // 3. Loading
         const modalContent = document.getElementById("modal-content-area");
         const originalHTML = modalContent.innerHTML;
+        
+        // Animasi Loading
         modalContent.innerHTML = `
             <div class="flex flex-col items-center justify-center py-6">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-4"></div>
@@ -269,7 +263,6 @@
             </div>
         `;
 
-        // 4. Kirim ke Database Supabase
         try {
             const { error } = await supabaseClient
                 .from('suara_pemilu')
@@ -280,30 +273,50 @@
 
             if (error) throw error;
 
-            modalContent.innerHTML = originalHTML;
-            closeModal();
+            // ANIMASI BERHASIL (OTOMATIS KEMBALI KE ID TANPA KLIK TUTUP)
+            modalContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-6 text-center">
+                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Berhasil!</h3>
+                    <p class="text-slate-600">Suara Anda telah tersimpan.</p>
+                    <p class="text-blue-600 font-bold mt-4 animate-pulse">Menyiapkan bilik untuk pemilih selanjutnya...</p>
+                </div>
+            `;
+            
+            // Tunggu 2 detik lalu otomatis redirect ke halaman ID
             setTimeout(() => {
-                showModal("Berhasil!", "Terima kasih, suara Anda telah aman tersimpan di database pusat.", [
-                    {text: "Tutup", class: "bg-emerald-600 text-white", action: () => { closeModal(); logout(); }}
-                ]);
-            }, 200);
+                modalContent.innerHTML = originalHTML;
+                closeModal();
+                logout(); 
+            }, 2000);
 
         } catch (err) {
             console.error("Error Supabase:", err);
-            modalContent.innerHTML = originalHTML; 
-            closeModal();
             
-            setTimeout(() => {
-                showModal("Gagal Mengirim", "Gagal terhubung ke database pusat. Pastikan koneksi internet stabil.", [
-                    {text: "Tutup", class: "bg-red-600 text-white", action: closeModal}
-                ]);
-            }, 200);
-            
-            // Rollback data lokal
+            // Rollback lokal jika gagal
             active_k_ismi.find(k => k.id === pilIsmi).suara--;
             active_k_kgp.find(k => k.id === pilKgp).suara--;
             pemilih.push(idAktif); 
             pemilih.sort(); 
+            
+            modalContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-6 text-center">
+                    <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Koneksi Gagal</h3>
+                    <p class="text-slate-600">Mohon cek internet Anda.</p>
+                    <p class="text-blue-600 font-bold mt-4 animate-pulse">Mengembalikan halaman...</p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                modalContent.innerHTML = originalHTML;
+                closeModal();
+                logout(); 
+            }, 2500);
         }
     }
 
