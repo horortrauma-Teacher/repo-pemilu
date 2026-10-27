@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Voting Daar el-Qolam</title>
+    <title>Pemilu ISMI & KGP - Daar el-Qolam 2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Library Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .kandidat-card { transition: all 0.2s ease-in-out; }
@@ -15,13 +17,12 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col items-center py-10">
 
-   <!-- HALAMAN LOGIN -->
+    <!-- HALAMAN LOGIN -->
     <div id="login-section" class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
         <div class="text-center mb-6 flex flex-col items-center">
-            <!-- Logo Daar el-Qolam -->
-            <img src="logodarqo.png" alt="Logo Daar el-Qolam" class="w-24 h-auto mb-4">
-            
-            <!-- Judul Baru -->
+            <!-- GANTI "logo.png" DI BAWAH INI DENGAN NAMA FILE LOGO ANDA -->
+            <img src="logo.png" alt="Logo Daar el-Qolam" class="w-24 h-auto mb-4" onerror="this.style.display='none'">
+
             <h1 class="text-2xl font-bold text-slate-800 leading-tight">Pemilihan Umum ISMI dan KGP</h1>
             <p class="text-slate-500 mt-2 font-medium">Daar el-Qolam 2</p>
         </div>
@@ -31,7 +32,7 @@
             <select id="voter-id" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-lg font-medium"></select>
         </div>
         
-        <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md text-lg mt-2">
+        <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md text-lg">
             Mulai Memilih
         </button>
         
@@ -63,13 +64,13 @@
             <div id="ismi-list" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div>
         </div>
         
-        <!-- Kategori KGMP -->
+        <!-- Kategori KGP -->
         <div class="mb-10">
             <div class="flex items-center gap-2 mb-4">
                 <div class="w-2 h-6 bg-emerald-600 rounded-full"></div>
                 <h2 class="text-xl font-bold text-slate-800">Kandidat KGP <span class="text-sm font-normal text-slate-500">(Pilih 1)</span></h2>
             </div>
-            <div id="kgmp-list" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div>
+            <div id="kgp-list" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div>
         </div>
 
         <!-- Tombol Aksi -->
@@ -86,7 +87,7 @@
     <!-- HALAMAN ADMIN -->
     <div id="admin-section" class="hidden w-full max-w-4xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-100 mx-4">
         <div class="flex justify-between items-center mb-6 border-b pb-4">
-            <h2 class="text-2xl font-bold text-slate-800">Panel Admin - Rekapan Suara</h2>
+            <h2 class="text-2xl font-bold text-slate-800">Panel Admin - Rekapan Suara (Bilik Ini)</h2>
             <button onclick="tutupAdmin()" class="px-4 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 font-bold rounded-lg transition-colors text-sm">
                 Tutup Panel
             </button>
@@ -102,30 +103,39 @@
         <div id="rekap-data"></div>
     </div>
 
-    <!-- MODAL CUSTOM (ALERT & CONFIRM) -->
+    <!-- MODAL CUSTOM -->
     <div id="custom-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full transform transition-all">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full transform transition-all" id="modal-content-area">
             <h3 id="modal-title" class="text-xl font-bold text-slate-800 mb-2"></h3>
             <p id="modal-desc" class="text-slate-600 mb-6 text-sm"></p>
-            
-            <!-- Input khusus form Admin -->
             <input type="password" id="modal-input" class="hidden w-full p-3 mb-6 border border-slate-300 rounded-lg outline-none focus:border-blue-500 text-center tracking-widest" placeholder="Password Admin">
-            
             <div id="modal-actions" class="flex gap-3 justify-end"></div>
         </div>
     </div>
 
 <script>
-    // MENGAMBIL GAMBAR LANGSUNG DARI REPO GITHUB (Bypass Error Vercel)
-    const repoURL = "https://raw.githubusercontent.com/horortrauma-Teacher/repo-pemilu/main/";
+    // =========================================================================
+    // KONFIGURASI SUPABASE (GANTI DENGAN DATA DARI DASHBOARD SUPABASE ANDA!)
+    // =========================================================================
+    const supabaseUrl = 'https://URL_PROJECT_ANDA.supabase.co'; 
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; 
+    
+    // Inisialisasi Klien Supabase
+    const { createClient } = supabase;
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
+    // Identitas Bilik (Bisa Anda ubah manual di tiap laptop menjadi "Bilik 2", "Bilik 3", dst)
+    const namaBilik = "Bilik 1"; 
+    // =========================================================================
+
+    // Data Kandidat
     let k_ismi = [
         { id: 'i1', nama: "Faathir Muhamad Raihan", suara: 0, image: "Faathir.jpg.jpeg" },
         { id: 'i2', nama: "Abyaz Rasha Afni Putra", suara: 0, image: "Abyaz.jpg.jpeg" },
         { id: 'i3', nama: "Muhammad Azzam As Shiddiq Wibowo", suara: 0, image: "Azzam.jpg.jpeg" }
     ];
 
-    let k_kgmp = [
+    let k_kgp = [
         { id: 'k1', nama: "Regan Habibullah Alfarisi", suara: 0, image: "Regan.jpg.jpeg" },
         { id: 'k2', nama: "Muhammad Kemal Sajidsyah", suara: 0, image: "Kemal.jpg.jpeg" },
         { id: 'k3', nama: "Aksan Hidayatullah", suara: 0, image: "Aksan.jpg.jpeg" }
@@ -134,24 +144,23 @@
     let pemilih = Array.from({length: 200}, (_, i) => String(i+1).padStart(3, '0'));
     let idAktif = null;
     let pilIsmi = null;
-    let pilKgmp = null;
+    let pilKgp = null;
 
     function initData() {
         let sel = document.getElementById("voter-id");
         sel.innerHTML = '<option value="">-- Pilih ID Anda --</option>';
         pemilih.forEach(p => { sel.innerHTML += `<option value="${p}">${p}</option>`; });
         renderKandidat('ismi-list', k_ismi, 'ismi');
-        renderKandidat('kgmp-list', k_kgmp, 'kgmp');
+        renderKandidat('kgp-list', k_kgp, 'kgp');
     }
 
     function renderKandidat(elId, data, tipe) {
         const container = document.getElementById(elId);
         container.innerHTML = '';
         data.forEach(k => {
-            const isSelected = (tipe === 'ismi' && pilIsmi === k.id) || (tipe === 'kgmp' && pilKgmp === k.id);
+            const isSelected = (tipe === 'ismi' && pilIsmi === k.id) || (tipe === 'kgp' && pilKgp === k.id);
             const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(k.nama)}&background=random&color=fff&size=128`;
             
-            // Perbaikan gambar agar tidak pecah/blank
             const html = `
                 <div class="kandidat-card flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer bg-white w-36 sm:w-40 border-slate-200 ${isSelected ? 'selected' : ''}" onclick="pilih('${tipe}', '${k.id}')">
                     <img src="${k.image}" onerror="this.onerror=null; this.src='${fallback}';" class="w-24 h-24 rounded-full object-cover object-top mb-3 shadow-sm border-2 border-slate-100" alt="${k.nama}">
@@ -164,13 +173,13 @@
 
     function pilih(tipe, id) {
         if(tipe === 'ismi') pilIsmi = id;
-        if(tipe === 'kgmp') pilKgmp = id;
+        if(tipe === 'kgp') pilKgp = id;
         
         renderKandidat('ismi-list', k_ismi, 'ismi');
-        renderKandidat('kgmp-list', k_kgmp, 'kgmp');
+        renderKandidat('kgp-list', k_kgp, 'kgp');
         
         const btn = document.getElementById("btn-kirim");
-        if(pilIsmi && pilKgmp) {
+        if(pilIsmi && pilKgp) {
             btn.disabled = false;
             btn.classList.remove("opacity-50", "cursor-not-allowed");
             btn.classList.add("hover:bg-blue-700", "shadow-md");
@@ -184,7 +193,7 @@
         document.getElementById("label-id").innerText = idAktif;
         document.getElementById("login-section").classList.add("hidden");
         document.getElementById("voting-section").classList.remove("hidden");
-        pilIsmi = null; pilKgmp = null; pilih(null, null); // Reset UI
+        pilIsmi = null; pilKgp = null; pilih(null, null);
     }
 
     function logout() {
@@ -201,24 +210,69 @@
         ]);
     }
 
-    function prosesKirimSuara() {
+    async function prosesKirimSuara() {
+        // 1. Simpan di Rekapan Lokal (Per Bilik)
         k_ismi.find(k => k.id === pilIsmi).suara++;
-        k_kgmp.find(k => k.id === pilKgmp).suara++;
+        k_kgp.find(k => k.id === pilKgp).suara++;
         pemilih = pemilih.filter(p => p !== idAktif);
         
-        closeModal();
-        setTimeout(() => {
-            showModal("Berhasil!", "Terima kasih, suara Anda telah disimpan.", [{text: "Tutup", class: "bg-emerald-600 text-white", action: () => { closeModal(); logout(); }}]);
-        }, 300);
+        // 2. Ubah modal menjadi tampilan Loading
+        const modalContent = document.getElementById("modal-content-area");
+        const originalHTML = modalContent.innerHTML; // Simpan UI asli
+        modalContent.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-6">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-4"></div>
+                <p class="font-bold text-slate-700 text-lg">Mengirim data ke pusat...</p>
+                <p class="text-sm text-slate-500 mt-2">Mohon tunggu sebentar.</p>
+            </div>
+        `;
+
+        // 3. Kirim ke Database Supabase
+        try {
+            const { error } = await supabaseClient
+                .from('suara_pemilu')
+                .insert([
+                    { kandidat_id: pilIsmi, kategori: 'ISMI', bilik: namaBilik },
+                    { kandidat_id: pilKgp, kategori: 'KGP', bilik: namaBilik }
+                ]);
+
+            if (error) throw error;
+
+            // Sukses! Kembalikan UI modal dan tampilkan pesan berhasil
+            modalContent.innerHTML = originalHTML;
+            closeModal();
+            setTimeout(() => {
+                showModal("Berhasil!", "Terima kasih, suara Anda telah aman tersimpan di database pusat.", [
+                    {text: "Tutup", class: "bg-emerald-600 text-white", action: () => { closeModal(); logout(); }}
+                ]);
+            }, 200);
+
+        } catch (err) {
+            console.error("Error Supabase:", err);
+            modalContent.innerHTML = originalHTML; // Kembalikan UI modal
+            closeModal();
+            
+            setTimeout(() => {
+                showModal("Gagal Mengirim", "Gagal terhubung ke database pusat. Pastikan koneksi internet stabil.", [
+                    {text: "Tutup", class: "bg-red-600 text-white", action: closeModal}
+                ]);
+            }, 200);
+            
+            // Rollback data lokal karena gagal
+            k_ismi.find(k => k.id === pilIsmi).suara--;
+            k_kgp.find(k => k.id === pilKgp).suara--;
+            pemilih.push(idAktif); 
+            pemilih.sort(); // Urutkan ID lagi
+        }
     }
 
-    // -- FUNGSI ADMIN --
+    // -- FUNGSI ADMIN LOKAL --
     function bukaAdmin() {
         const inp = document.getElementById("modal-input");
         inp.classList.remove("hidden");
         inp.value = "";
         
-        showModal("Login Admin", "Masukkan password untuk melihat rekapan:", [
+        showModal("Login Admin", "Masukkan password untuk melihat rekapan bilik ini:", [
             {text: "Batal", class: "bg-slate-200 text-slate-800", action: () => { inp.classList.add("hidden"); closeModal(); }},
             {text: "Masuk", class: "bg-blue-600 text-white", action: () => {
                 if(inp.value === "pengasuhan2026") {
@@ -240,8 +294,8 @@
     }
 
     function tampilRekap() {
-        let h = `<h3 class="text-xl font-bold text-blue-600 mb-4 pb-2 border-b">Hasil ISMI</h3>${buatTabel(k_ismi)}
-                 <h3 class="text-xl font-bold text-emerald-600 mb-4 pb-2 border-b mt-8">Hasil KGMP</h3>${buatTabel(k_kgmp)}
+        let h = `<h3 class="text-xl font-bold text-blue-600 mb-4 pb-2 border-b">Hasil ISMI (Bilik Ini)</h3>${buatTabel(k_ismi)}
+                 <h3 class="text-xl font-bold text-emerald-600 mb-4 pb-2 border-b mt-8">Hasil KGP (Bilik Ini)</h3>${buatTabel(k_kgp)}
                  <div class="mt-6 p-4 bg-slate-50 border rounded-lg text-center"><p class="text-lg">Total Suara Masuk: <span class="text-blue-600 font-bold">${200 - pemilih.length}</span> / 200</p></div>`;
         document.getElementById("rekap-data").innerHTML = h;
     }
@@ -263,10 +317,10 @@
                 csv += `${kat},${i+1},${k.nama},${k.suara},${i === 0 ? "Ketua" : (i === 1 ? "Wakil" : "-")}\n`;
             });
         };
-        isiCSV(k_ismi, "ISMI"); isiCSV(k_kgmp, "KGMP");
+        isiCSV(k_ismi, "ISMI"); isiCSV(k_kgp, "KGP");
         let a = document.createElement("a");
         a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
-        a.download = "Rekapan_Pemilu_DaarElQolam.csv";
+        a.download = `Rekapan_Lokal_${namaBilik}_DaarElQolam.csv`;
         a.click();
     }
 
@@ -278,19 +332,20 @@
         
         const actions = document.getElementById("modal-actions");
         actions.innerHTML = '';
-        buttons.forEach(b => {
-            const btn = document.createElement("button");
-            btn.className = `px-4 py-2 font-bold rounded-lg transition-colors w-full ${b.class}`;
-            btn.innerText = b.text;
-            btn.onclick = b.action || closeModal;
-            actions.appendChild(btn);
-        });
+        if(buttons) {
+            buttons.forEach(b => {
+                const btn = document.createElement("button");
+                btn.className = `px-4 py-2 font-bold rounded-lg transition-colors w-full ${b.class}`;
+                btn.innerText = b.text;
+                btn.onclick = b.action || closeModal;
+                actions.appendChild(btn);
+            });
+        }
         modal.classList.remove("hidden");
     }
     function closeModal() { modal.classList.add("hidden"); }
 
     window.onload = initData;
-    
 </script>
 </body>
 </html>
