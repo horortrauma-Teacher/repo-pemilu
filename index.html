@@ -184,18 +184,19 @@
 <script>
     /* --- DATA STATE --- */
     // Data Kandidat ISMI
-    let k_ismi = [
-        { id: 'i1', nama: "Faathir Muhamad Raihan", suara: 0, image: "1000762043.jpg" },
-        { id: 'i2', nama: "Abyaz Rasha Afni Putra", suara: 0, image: "1000762044.jpg" },
-        { id: 'i3', nama: "Muhammad Azzam As Shiddiq Wibowo", suara: 0, image: "1000762046.jpg" }
-    ];
-    
-    // Data Kandidat KGMP
-    let k_kgmp = [
-        { id: 'k1', nama: "Regan Habibullah Alfarisi", suara: 0, image: "1000762041.jpg" },
-        { id: 'k2', nama: "Muhammad Kemal Sajidsyah", suara: 0, image: "1000762042.jpg" },
-        { id: 'k3', nama: "Aksan Hidayatullah", suara: 0, image: "1000762045.jpg" }
-    ];
+   // Data kandidat ISMI (Jas Biru)
+let k_ismi = [
+    { id: 'i1', nama: "Faathir Muhamad Raihan", suara: 0, image: "1000762043.jpg" },
+    { id: 'i2', nama: "Abyaz Rasha Afni Putra", suara: 0, image: "1000762044.jpg" },
+    { id: 'i3', nama: "Muhammad Azzam As Shiddiq Wibowo", suara: 0, image: "1000762046.jpg" }
+];
+
+// Data kandidat KGMP (Pramuka Coklat)
+let k_kgmp = [
+    { id: 'k1', nama: "Regan Habibullah Alfarisi", suara: 0, image: "1000762041.jpg" },
+    { id: 'k2', nama: "Muhammad Kemal Sajidsyah", suara: 0, image: "1000762042.jpg" },
+    { id: 'k3', nama: "Aksan Hidayatullah", suara: 0, image: "1000762045.jpg" }
+];
     
     // Generate 200 IDs
     let pemilih = Array.from({length: 200}, (_, i) => String(i+1).padStart(3, '0'));
