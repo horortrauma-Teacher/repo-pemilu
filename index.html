@@ -3,202 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Pemilu Sederhana</title>
-    <!-- Tailwind CSS -->
+    <title>E-Voting Daar el-Qolam</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        /* Smooth transitions */
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .kandidat-card { transition: all 0.2s ease-in-out; }
+        .kandidat-card.selected { border-color: #3b82f6; background-color: #eff6ff; transform: scale(1.05); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .kandidat-card:not(.selected):hover { border-color: #93c5fd; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex items-center justify-center p-4 sm:p-8">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col items-center py-10">
 
-    <!-- MAIN CONTAINER -->
-    <div class="w-full max-w-5xl">
-
-        <!-- 1. HALAMAN LOGIN -->
-        <div id="login-section" class="bg-white p-8 sm:p-12 rounded-2xl shadow-sm border border-slate-100 max-w-md mx-auto text-center fade-in">
-            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold text-slate-900 mb-2">Sistem Pemilu</h2>
-            <p class="text-slate-500 mb-8">Silakan pilih ID Pemilih Anda untuk memulai</p>
-            
-            <div class="mb-6 text-left">
-                <label for="voter-id" class="block text-sm font-medium text-slate-700 mb-2">ID Pemilih (001 - 200)</label>
-                <select id="voter-id" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white text-slate-700 appearance-none cursor-pointer">
-                    <!-- Options injected via JS -->
-                </select>
-            </div>
-            
-            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors shadow-sm mb-8">
-                Mulai Memilih
+    <!-- HALAMAN LOGIN -->
+    <div id="login-section" class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-slate-800">Sistem Pemilu</h1>
+            <p class="text-slate-500 mt-1">Daar el-Qolam 2</p>
+        </div>
+        
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-slate-700 mb-2">Silakan pilih ID Anda (001 - 200)</label>
+            <select id="voter-id" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-lg font-medium"></select>
+        </div>
+        
+        <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md text-lg">
+            Mulai Memilih
+        </button>
+        
+        <div class="mt-8 pt-6 border-t border-slate-200 text-center">
+            <button onclick="bukaAdmin()" class="text-sm text-slate-500 hover:text-slate-700 underline transition-colors">
+                Akses Rekapan (Admin)
             </button>
-            
-            <div class="pt-6 border-t border-slate-100">
-                <button onclick="bukaModalAdmin()" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors flex items-center justify-center w-full gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                    Akses Panel Admin
-                </button>
-            </div>
-        </div>
-
-        <!-- 2. HALAMAN PEMILIHAN -->
-        <div id="voting-section" class="hidden bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-slate-100 fade-in">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-slate-100 pb-6">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Surat Suara Digital</h2>
-                    <p class="text-slate-500 mt-1">Silakan pilih satu kandidat untuk masing-masing kategori.</p>
-                </div>
-                <div class="bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                        <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clip-rule="evenodd" />
-                    </svg>
-                    ID: <span id="label-id" class="font-bold"></span>
-                </div>
-            </div>
-            
-            <!-- Kandidat ISMI -->
-            <div class="mb-10">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-2 h-8 bg-blue-500 rounded-full"></div>
-                    <h3 class="text-xl font-bold text-slate-800">Kandidat ISMI <span class="text-sm font-normal text-slate-500 ml-2">(Pilih 1)</span></h3>
-                </div>
-                <div id="ismi-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"></div>
-            </div>
-            
-            <!-- Kandidat KGMP -->
-            <div class="mb-10">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-2 h-8 bg-emerald-500 rounded-full"></div>
-                    <h3 class="text-xl font-bold text-slate-800">Kandidat KGMP <span class="text-sm font-normal text-slate-500 ml-2">(Pilih 1)</span></h3>
-                </div>
-                <div id="kgmp-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"></div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-slate-100">
-                <button onclick="logout()" class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors w-full sm:w-auto">
-                    Batal & Keluar
-                </button>
-                <button onclick="konfirmasiKirimSuara()" id="btn-kirim" disabled class="px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full sm:w-auto flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                        <path fill-rule="evenodd" d="M19.902 4.098a3.75 3.75 0 00-5.304 0l-4.5 4.5a3.75 3.75 0 001.035 6.037.75.75 0 01-.646 1.353 5.25 5.25 0 01-1.449-8.45l4.5-4.5a5.25 5.25 0 117.424 7.424l-1.757 1.757a.75.75 0 11-1.06-1.06l1.757-1.757a3.75 3.75 0 000-5.304zm-7.389 4.267a.75.75 0 011-.353 5.25 5.25 0 011.449 8.45l-4.5 4.5a5.25 5.25 0 11-7.424-7.424l1.757-1.757a.75.75 0 111.06 1.06l-1.757 1.757a3.75 3.75 0 105.304 5.304l4.5-4.5a3.75 3.75 0 00-1.035-6.037.75.75 0 01-.354-1z" clip-rule="evenodd" />
-                    </svg>
-                    Kirim Suara
-                </button>
-            </div>
-        </div>
-
-        <!-- 3. HALAMAN ADMIN / REKAPAN -->
-        <div id="admin-section" class="hidden bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-slate-100 fade-in">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 pb-6 border-b border-slate-100">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Panel Admin</h2>
-                    <p class="text-slate-500 mt-1">Rekapan Hasil Pemilu Real-time</p>
-                </div>
-                <div class="flex gap-3 w-full sm:w-auto">
-                    <button onclick="tutupAdmin()" class="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors">
-                        Kembali
-                    </button>
-                    <button onclick="exportExcel()" class="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                        </svg>
-                        Export CSV
-                    </button>
-                </div>
-            </div>
-            
-            <div id="rekap-data" class="space-y-8"></div>
-        </div>
-
-    </div>
-
-    <!-- CUSTOM MODALS (Replacing Alert/Prompt/Confirm) -->
-
-    <!-- Alert Modal -->
-    <div id="modal-alert" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden fade-in">
-            <div id="modal-alert-header" class="p-6 text-center">
-                <div id="modal-alert-icon" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4">
-                    <!-- Icon injected by JS -->
-                </div>
-                <h3 id="modal-alert-title" class="text-lg font-bold text-slate-900 mb-2"></h3>
-                <p id="modal-alert-message" class="text-sm text-slate-500"></p>
-            </div>
-            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-center gap-3" id="modal-alert-actions">
-                <button onclick="tutupModalAlert()" id="modal-alert-btn" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors">Tutup</button>
-            </div>
         </div>
     </div>
 
-    <!-- Prompt Modal (For Admin Password) -->
-    <div id="modal-prompt" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden fade-in">
-            <form onsubmit="verifikasiAdmin(event)">
-                <div class="p-6">
-                    <div class="flex items-center gap-3 mb-4 text-slate-900">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-blue-600">
-                            <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd" />
-                        </svg>
-                        <h3 class="text-lg font-bold">Akses Keamanan</h3>
-                    </div>
-                    <p class="text-sm text-slate-500 mb-4">Masukkan password admin untuk mengakses rekapan suara.</p>
-                    <input type="password" id="admin-password" placeholder="Password Admin" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                    <p id="admin-error" class="text-red-500 text-xs mt-2 hidden">Password yang Anda masukkan salah.</p>
-                </div>
-                <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-                    <button type="button" onclick="tutupModalPrompt()" class="px-4 py-2 rounded-xl text-slate-700 font-medium hover:bg-slate-200 transition-colors">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors">Akses</button>
-                </div>
-            </form>
+    <!-- HALAMAN PEMILIHAN -->
+    <div id="voting-section" class="hidden w-full max-w-4xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-100 mx-4">
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">Surat Suara Digital</h1>
+                <p class="text-slate-500 text-sm mt-1">Silakan pilih satu kandidat untuk masing-masing kategori.</p>
+            </div>
+            <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold border border-blue-100">
+                ID: <span id="label-id"></span>
+            </div>
+        </div>
+        
+        <!-- Kategori ISMI -->
+        <div class="mb-10">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
+                <h2 class="text-xl font-bold text-slate-800">Kandidat ISMI <span class="text-sm font-normal text-slate-500">(Pilih 1)</span></h2>
+            </div>
+            <div id="ismi-list" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div>
+        </div>
+        
+        <!-- Kategori KGMP -->
+        <div class="mb-10">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-2 h-6 bg-emerald-600 rounded-full"></div>
+                <h2 class="text-xl font-bold text-slate-800">Kandidat KGMP <span class="text-sm font-normal text-slate-500">(Pilih 1)</span></h2>
+            </div>
+            <div id="kgmp-list" class="flex flex-wrap justify-center gap-4 sm:gap-6"></div>
+        </div>
+
+        <!-- Tombol Aksi -->
+        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-200 mt-8">
+            <button onclick="logout()" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors order-2 sm:order-1">
+                Batal
+            </button>
+            <button id="btn-kirim" onclick="konfirmasiKirim()" disabled class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg transition-all opacity-50 cursor-not-allowed order-1 sm:order-2">
+                Kirim Suara
+            </button>
+        </div>
+    </div>
+
+    <!-- HALAMAN ADMIN -->
+    <div id="admin-section" class="hidden w-full max-w-4xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-100 mx-4">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h2 class="text-2xl font-bold text-slate-800">Panel Admin - Rekapan Suara</h2>
+            <button onclick="tutupAdmin()" class="px-4 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 font-bold rounded-lg transition-colors text-sm">
+                Tutup Panel
+            </button>
+        </div>
+        
+        <div class="flex justify-end mb-6">
+            <button onclick="exportExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-colors shadow-sm flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Export Excel (CSV)
+            </button>
+        </div>
+        
+        <div id="rekap-data"></div>
+    </div>
+
+    <!-- MODAL CUSTOM (ALERT & CONFIRM) -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full transform transition-all">
+            <h3 id="modal-title" class="text-xl font-bold text-slate-800 mb-2"></h3>
+            <p id="modal-desc" class="text-slate-600 mb-6 text-sm"></p>
+            
+            <!-- Input khusus form Admin -->
+            <input type="password" id="modal-input" class="hidden w-full p-3 mb-6 border border-slate-300 rounded-lg outline-none focus:border-blue-500 text-center tracking-widest" placeholder="Password Admin">
+            
+            <div id="modal-actions" class="flex gap-3 justify-end"></div>
         </div>
     </div>
 
 <script>
-    // Data kandidat ISMI (Jas Biru)
+    // MENGAMBIL GAMBAR LANGSUNG DARI REPO GITHUB (Bypass Error Vercel)
+    const repoURL = "https://raw.githubusercontent.com/horortrauma-Teacher/repo-pemilu/main/";
+
     let k_ismi = [
-        { id: 'i1', nama: "Faathir Muhamad Raihan", suara: 0, image: "1000762043.jpg" },
-        { id: 'i2', nama: "Abyaz Rasha Afni Putra", suara: 0, image: "1000762044.jpg" },
-        { id: 'i3', nama: "Muhammad Azzam As Shiddiq Wibowo", suara: 0, image: "1000762046.jpg" }
+        { id: 'i1', nama: "Faathir Muhamad Raihan", suara: 0, image: repoURL + "1000762043.jpg" },
+        { id: 'i2', nama: "Abyaz Rasha Afni Putra", suara: 0, image: repoURL + "1000762044.jpg" },
+        { id: 'i3', nama: "Muhammad Azzam As Shiddiq Wibowo", suara: 0, image: repoURL + "1000762046.jpg" }
     ];
 
-    // Data kandidat KGMP (Pramuka Coklat)
     let k_kgmp = [
-        { id: 'k1', nama: "Regan Habibullah Alfarisi", suara: 0, image: "1000762041.jpg" },
-        { id: 'k2', nama: "Muhammad Kemal Sajidsyah", suara: 0, image: "1000762042.jpg" },
-        { id: 'k3', nama: "Aksan Hidayatullah", suara: 0, image: "1000762045.jpg" }
+        { id: 'k1', nama: "Regan Habibullah Alfarisi", suara: 0, image: repoURL + "1000762041.jpg" },
+        { id: 'k2', nama: "Muhammad Kemal Sajidsyah", suara: 0, image: repoURL + "1000762042.jpg" },
+        { id: 'k3', nama: "Aksan Hidayatullah", suara: 0, image: repoURL + "1000762045.jpg" }
     ];
     
-    // Generate 200 ID
     let pemilih = Array.from({length: 200}, (_, i) => String(i+1).padStart(3, '0'));
-    
     let idAktif = null;
     let pilIsmi = null;
     let pilKgmp = null;
@@ -206,34 +135,9 @@
     function initData() {
         let sel = document.getElementById("voter-id");
         sel.innerHTML = '<option value="">-- Pilih ID Anda --</option>';
-        pemilih.forEach(p => {
-            sel.innerHTML += `<option value="${p}">${p}</option>`;
-        });
+        pemilih.forEach(p => { sel.innerHTML += `<option value="${p}">${p}</option>`; });
         renderKandidat('ismi-list', k_ismi, 'ismi');
         renderKandidat('kgmp-list', k_kgmp, 'kgmp');
-    }
-
-    function login() {
-        idAktif = document.getElementById("voter-id").value;
-        if(!idAktif) {
-            tampilkanAlert("Peringatan", "Silakan pilih ID Pemilih terlebih dahulu!");
-            return;
-        }
-        
-        document.getElementById("label-id").innerText = idAktif;
-        document.getElementById("login-section").classList.add("hidden");
-        document.getElementById("voting-section").classList.remove("hidden");
-        
-        pilIsmi = null; 
-        pilKgmp = null;
-        updateTampilan();
-    }
-
-    function logout() {
-        idAktif = null;
-        document.getElementById("login-section").classList.remove("hidden");
-        document.getElementById("voting-section").classList.add("hidden");
-        initData();
     }
 
     function renderKandidat(elId, data, tipe) {
@@ -241,18 +145,12 @@
         container.innerHTML = '';
         data.forEach(k => {
             const isSelected = (tipe === 'ismi' && pilIsmi === k.id) || (tipe === 'kgmp' && pilKgmp === k.id);
-            const baseClass = "flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 bg-white";
-            const stateClass = isSelected ? "border-blue-500 bg-blue-50 shadow-md transform scale-105 ring-2 ring-blue-200" : "border-slate-200 hover:border-blue-300 hover:shadow-sm";
+            const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(k.nama)}&background=random&color=fff&size=128`;
             
-            // Logika gambar: Jika gagal load gambar lokal, pakai avatar inisial
-            const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(k.nama)}&background=random&color=fff&size=128`;
-            const imageHtml = k.image 
-                ? `<img src="${k.image}" onerror="this.onerror=null; this.src='${avatarFallback}';" class="w-20 h-20 rounded-full object-cover object-top mb-3 shadow-sm border-2 border-slate-100" alt="${k.nama}">`
-                : `<img src="${avatarFallback}" class="w-20 h-20 rounded-full object-cover mb-3 shadow-sm border-2 border-slate-100" alt="${k.nama}">`;
-
+            // Perbaikan gambar agar tidak pecah/blank
             const html = `
-                <div class="${baseClass} ${stateClass} w-36 sm:w-40" onclick="pilih('${tipe}', '${k.id}')">
-                    ${imageHtml}
+                <div class="kandidat-card flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer bg-white w-36 sm:w-40 border-slate-200 ${isSelected ? 'selected' : ''}" onclick="pilih('${tipe}', '${k.id}')">
+                    <img src="${k.image}" onerror="this.onerror=null; this.src='${fallback}';" class="w-24 h-24 rounded-full object-cover object-top mb-3 shadow-sm border-2 border-slate-100" alt="${k.nama}">
                     <div class="text-sm font-semibold text-center text-slate-700 leading-tight">${k.nama}</div>
                 </div>
             `;
@@ -263,65 +161,73 @@
     function pilih(tipe, id) {
         if(tipe === 'ismi') pilIsmi = id;
         if(tipe === 'kgmp') pilKgmp = id;
-        updateTampilan();
-    }
-
-    function updateTampilan() {
+        
         renderKandidat('ismi-list', k_ismi, 'ismi');
         renderKandidat('kgmp-list', k_kgmp, 'kgmp');
         
-        const btnKirim = document.getElementById("btn-kirim");
+        const btn = document.getElementById("btn-kirim");
         if(pilIsmi && pilKgmp) {
-            btnKirim.disabled = false;
-            btnKirim.classList.remove("opacity-50", "cursor-not-allowed");
-            btnKirim.classList.add("hover:bg-blue-700", "shadow-md");
-        } else {
-            btnKirim.disabled = true;
-            btnKirim.classList.add("opacity-50", "cursor-not-allowed");
-            btnKirim.classList.remove("hover:bg-blue-700", "shadow-md");
+            btn.disabled = false;
+            btn.classList.remove("opacity-50", "cursor-not-allowed");
+            btn.classList.add("hover:bg-blue-700", "shadow-md");
         }
     }
 
+    function login() {
+        idAktif = document.getElementById("voter-id").value;
+        if(!idAktif) return showModal("Peringatan", "Silakan pilih ID Pemilih terlebih dahulu!", [{text: "Tutup", class: "bg-blue-600 text-white"}]);
+        
+        document.getElementById("label-id").innerText = idAktif;
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("voting-section").classList.remove("hidden");
+        pilIsmi = null; pilKgmp = null; pilih(null, null); // Reset UI
+    }
+
+    function logout() {
+        idAktif = null;
+        document.getElementById("login-section").classList.remove("hidden");
+        document.getElementById("voting-section").classList.add("hidden");
+        initData();
+    }
+
     function konfirmasiKirim() {
-        if(!pilIsmi || !pilKgmp) return;
-        tampilkanConfirm(
-            "Konfirmasi Pilihan", 
-            "Apakah Anda yakin dengan pilihan Anda? Suara yang sudah dikirim tidak dapat diubah kembali.",
-            prosesKirimSuara
-        );
+        showModal("Konfirmasi", "Yakin dengan pilihan Anda? Suara yang sudah dikirim tidak dapat diubah.", [
+            {text: "Batal", class: "bg-slate-200 text-slate-800", action: closeModal},
+            {text: "Ya, Kirim", class: "bg-blue-600 text-white", action: prosesKirimSuara}
+        ]);
     }
 
     function prosesKirimSuara() {
         k_ismi.find(k => k.id === pilIsmi).suara++;
         k_kgmp.find(k => k.id === pilKgmp).suara++;
-        
         pemilih = pemilih.filter(p => p !== idAktif);
         
-        tampilkanAlert("Berhasil!", "Terima kasih! Suara Anda telah berhasil disimpan.", function() {
-            logout();
-        });
+        closeModal();
+        setTimeout(() => {
+            showModal("Berhasil!", "Terima kasih, suara Anda telah disimpan.", [{text: "Tutup", class: "bg-emerald-600 text-white", action: () => { closeModal(); logout(); }}]);
+        }, 300);
     }
 
+    // -- FUNGSI ADMIN --
     function bukaAdmin() {
-        const modal = document.getElementById("modal-admin-auth");
-        document.getElementById("admin-password").value = "";
-        modal.classList.remove("hidden");
-    }
-
-    function tutupAdminAuth() {
-        document.getElementById("modal-admin-auth").classList.add("hidden");
-    }
-
-    function cekPasswordAdmin() {
-        const pass = document.getElementById("admin-password").value;
-        if(pass === "pengasuhan2026") {
-            tutupAdminAuth();
-            document.getElementById("login-section").classList.add("hidden");
-            document.getElementById("admin-section").classList.remove("hidden");
-            tampilRekap();
-        } else {
-            tampilkanAlert("Akses Ditolak", "Password yang Anda masukkan salah!");
-        }
+        const inp = document.getElementById("modal-input");
+        inp.classList.remove("hidden");
+        inp.value = "";
+        
+        showModal("Login Admin", "Masukkan password untuk melihat rekapan:", [
+            {text: "Batal", class: "bg-slate-200 text-slate-800", action: () => { inp.classList.add("hidden"); closeModal(); }},
+            {text: "Masuk", class: "bg-blue-600 text-white", action: () => {
+                if(inp.value === "pengasuhan2026") {
+                    inp.classList.add("hidden");
+                    closeModal();
+                    document.getElementById("login-section").classList.add("hidden");
+                    document.getElementById("admin-section").classList.remove("hidden");
+                    tampilRekap();
+                } else {
+                    alert("Password Salah!");
+                }
+            }}
+        ]);
     }
 
     function tutupAdmin() {
@@ -330,125 +236,55 @@
     }
 
     function tampilRekap() {
-        let html = `
-            <div class="mb-8">
-                <h3 class="text-xl font-bold text-blue-600 mb-4 border-b pb-2">Hasil Pemilu ISMI</h3>
-                ${buatTabel(k_ismi)}
-            </div>
-            <div class="mb-6">
-                <h3 class="text-xl font-bold text-emerald-600 mb-4 border-b pb-2">Hasil Pemilu KGMP</h3>
-                ${buatTabel(k_kgmp)}
-            </div>
-        `;
-        
-        let totalMasuk = 200 - pemilih.length;
-        html += `
-            <div class="mt-6 p-4 bg-slate-50 border rounded-lg text-center">
-                <p class="text-lg text-slate-700"><strong>Total Suara Masuk:</strong> <span class="text-blue-600 text-xl">${totalMasuk}</span> / 200</p>
-            </div>
-        `;
-        
-        document.getElementById("rekap-data").innerHTML = html;
+        let h = `<h3 class="text-xl font-bold text-blue-600 mb-4 pb-2 border-b">Hasil ISMI</h3>${buatTabel(k_ismi)}
+                 <h3 class="text-xl font-bold text-emerald-600 mb-4 pb-2 border-b mt-8">Hasil KGMP</h3>${buatTabel(k_kgmp)}
+                 <div class="mt-6 p-4 bg-slate-50 border rounded-lg text-center"><p class="text-lg">Total Suara Masuk: <span class="text-blue-600 font-bold">${200 - pemilih.length}</span> / 200</p></div>`;
+        document.getElementById("rekap-data").innerHTML = h;
     }
 
     function buatTabel(data) {
         let sorted = [...data].sort((a,b) => b.suara - a.suara);
-        let t = `
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-slate-600">
-                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                        <tr>
-                            <th scope="col" class="px-4 py-3 rounded-tl-lg">Posisi</th>
-                            <th scope="col" class="px-4 py-3">Nama Kandidat</th>
-                            <th scope="col" class="px-4 py-3 text-center">Suara</th>
-                            <th scope="col" class="px-4 py-3 rounded-tr-lg">Jabatan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
+        let t = `<div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-slate-100"><tr><th class="p-3">Posisi</th><th class="p-3">Nama</th><th class="p-3 text-center">Suara</th><th class="p-3">Jabatan</th></tr></thead><tbody>`;
         sorted.forEach((k, i) => {
-            let jab = i === 0 ? '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md font-semibold text-xs">👑 Ketua</span>' : (i === 1 ? '<span class="px-2 py-1 bg-slate-200 text-slate-700 rounded-md font-semibold text-xs">🥈 Wakil</span>' : "-");
-            let rowClass = i % 2 === 0 ? 'bg-white' : 'bg-slate-50';
-            t += `
-                <tr class="${rowClass} border-b last:border-0 hover:bg-slate-100">
-                    <td class="px-4 py-3 font-medium">${i+1}</td>
-                    <td class="px-4 py-3 font-bold text-slate-800">${k.nama}</td>
-                    <td class="px-4 py-3 text-center font-bold text-blue-600 text-base">${k.suara}</td>
-                    <td class="px-4 py-3">${jab}</td>
-                </tr>
-            `;
+            let jab = i === 0 ? '👑 Ketua' : (i === 1 ? '🥈 Wakil' : '-');
+            t += `<tr class="border-b"><td class="p-3">${i+1}</td><td class="p-3 font-bold">${k.nama}</td><td class="p-3 text-center font-bold text-blue-600">${k.suara}</td><td class="p-3">${jab}</td></tr>`;
         });
-        t += "</tbody></table></div>";
-        return t;
+        return t + "</tbody></table></div>";
     }
 
     function exportExcel() {
         let csv = "Kategori,Posisi,Nama,Suara,Jabatan\n";
-        
         let isiCSV = (data, kat) => {
-            let sorted = [...data].sort((a,b) => b.suara - a.suara);
-            sorted.forEach((k, i) => {
-                let jab = i === 0 ? "Ketua" : (i === 1 ? "Wakil" : "-");
-                csv += `${kat},${i+1},${k.nama},${k.suara},${jab}\n`;
+            [...data].sort((a,b) => b.suara - a.suara).forEach((k, i) => {
+                csv += `${kat},${i+1},${k.nama},${k.suara},${i === 0 ? "Ketua" : (i === 1 ? "Wakil" : "-")}\n`;
             });
         };
-        
-        isiCSV(k_ismi, "ISMI");
-        isiCSV(k_kgmp, "KGMP");
-        csv += `\nTotal Suara Masuk:,${200 - pemilih.length}\n`;
-
+        isiCSV(k_ismi, "ISMI"); isiCSV(k_kgmp, "KGMP");
         let a = document.createElement("a");
         a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
         a.download = "Rekapan_Pemilu_DaarElQolam.csv";
         a.click();
     }
 
-    // Modal UI Functions
-    let onAlertCloseCallback = null;
-
-    function tampilkanAlert(title, message, onClose = null) {
-        const modal = document.getElementById("modal-alert");
-        document.getElementById("modal-alert-title").innerText = title;
-        document.getElementById("modal-alert-message").innerText = message;
+    // -- SISTEM MODAL --
+    const modal = document.getElementById("custom-modal");
+    function showModal(title, desc, buttons) {
+        document.getElementById("modal-title").innerText = title;
+        document.getElementById("modal-desc").innerText = desc;
         
-        onAlertCloseCallback = onClose;
-        
-        const actionsDiv = document.getElementById("modal-alert-actions");
-        actionsDiv.innerHTML = `<button onclick="tutupModalAlert()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">Tutup</button>`;
-        
+        const actions = document.getElementById("modal-actions");
+        actions.innerHTML = '';
+        buttons.forEach(b => {
+            const btn = document.createElement("button");
+            btn.className = `px-4 py-2 font-bold rounded-lg transition-colors w-full ${b.class}`;
+            btn.innerText = b.text;
+            btn.onclick = b.action || closeModal;
+            actions.appendChild(btn);
+        });
         modal.classList.remove("hidden");
     }
+    function closeModal() { modal.classList.add("hidden"); }
 
-    function tampilkanConfirm(title, message, onConfirm) {
-        const modal = document.getElementById("modal-alert");
-        document.getElementById("modal-alert-title").innerText = title;
-        document.getElementById("modal-alert-message").innerText = message;
-        
-        onAlertCloseCallback = null; // Clear any close callback
-        
-        const actionsDiv = document.getElementById("modal-alert-actions");
-        actionsDiv.innerHTML = `
-            <button onclick="tutupModalAlert()" class="w-full px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium transition-colors">Batal</button>
-            <button id="confirm-btn-action" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-sm">Ya, Kirim</button>
-        `;
-        
-        document.getElementById("confirm-btn-action").onclick = function() {
-            tutupModalAlert();
-            onConfirm();
-        };
-        
-        modal.classList.remove("hidden");
-    }
-
-    function tutupModalAlert() {
-        document.getElementById("modal-alert").classList.add("hidden");
-        if (onAlertCloseCallback) {
-            onAlertCloseCallback();
-            onAlertCloseCallback = null;
-        }
-    }
-
-    // Initialize application on load
     window.onload = initData;
 </script>
 </body>
