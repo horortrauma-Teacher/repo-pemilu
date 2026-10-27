@@ -182,33 +182,30 @@
     </div>
 
 <script>
-    /* --- DATA STATE --- */
-    // Data Kandidat ISMI
-   // Data kandidat ISMI (Jas Biru)
-let k_ismi = [
-    { id: 'i1', nama: "Faathir Muhamad Raihan", suara: 0, image: "1000762043.jpg" },
-    { id: 'i2', nama: "Abyaz Rasha Afni Putra", suara: 0, image: "1000762044.jpg" },
-    { id: 'i3', nama: "Muhammad Azzam As Shiddiq Wibowo", suara: 0, image: "1000762046.jpg" }
-];
+    // Data kandidat ISMI (Jas Biru)
+    let k_ismi = [
+        { id: 'i1', nama: "Faathir Muhamad Raihan", suara: 0, image: "1000762043.jpg" },
+        { id: 'i2', nama: "Abyaz Rasha Afni Putra", suara: 0, image: "1000762044.jpg" },
+        { id: 'i3', nama: "Muhammad Azzam As Shiddiq Wibowo", suara: 0, image: "1000762046.jpg" }
+    ];
 
-// Data kandidat KGMP (Pramuka Coklat)
-let k_kgmp = [
-    { id: 'k1', nama: "Regan Habibullah Alfarisi", suara: 0, image: "1000762041.jpg" },
-    { id: 'k2', nama: "Muhammad Kemal Sajidsyah", suara: 0, image: "1000762042.jpg" },
-    { id: 'k3', nama: "Aksan Hidayatullah", suara: 0, image: "1000762045.jpg" }
-];
+    // Data kandidat KGMP (Pramuka Coklat)
+    let k_kgmp = [
+        { id: 'k1', nama: "Regan Habibullah Alfarisi", suara: 0, image: "1000762041.jpg" },
+        { id: 'k2', nama: "Muhammad Kemal Sajidsyah", suara: 0, image: "1000762042.jpg" },
+        { id: 'k3', nama: "Aksan Hidayatullah", suara: 0, image: "1000762045.jpg" }
+    ];
     
-    // Generate 200 IDs
+    // Generate 200 ID
     let pemilih = Array.from({length: 200}, (_, i) => String(i+1).padStart(3, '0'));
     
     let idAktif = null;
     let pilIsmi = null;
     let pilKgmp = null;
 
-    /* --- INITIALIZATION --- */
     function initData() {
         let sel = document.getElementById("voter-id");
-        sel.innerHTML = '<option value="" disabled selected>-- Pilih ID Pemilih --</option>';
+        sel.innerHTML = '<option value="">-- Pilih ID Anda --</option>';
         pemilih.forEach(p => {
             sel.innerHTML += `<option value="${p}">${p}</option>`;
         });
@@ -216,11 +213,10 @@ let k_kgmp = [
         renderKandidat('kgmp-list', k_kgmp, 'kgmp');
     }
 
-    /* --- AUTH & NAVIGATION --- */
     function login() {
         idAktif = document.getElementById("voter-id").value;
         if(!idAktif) {
-            tampilkanAlert("Akses Ditolak", "Silakan pilih ID Pemilih Anda terlebih dahulu dari daftar dropdown.", "error");
+            tampilkanAlert("Peringatan", "Silakan pilih ID Pemilih terlebih dahulu!");
             return;
         }
         
@@ -228,7 +224,6 @@ let k_kgmp = [
         document.getElementById("login-section").classList.add("hidden");
         document.getElementById("voting-section").classList.remove("hidden");
         
-        // Reset pilihan setiap login
         pilIsmi = null; 
         pilKgmp = null;
         updateTampilan();
@@ -238,41 +233,31 @@ let k_kgmp = [
         idAktif = null;
         document.getElementById("login-section").classList.remove("hidden");
         document.getElementById("voting-section").classList.add("hidden");
-        // Reset dropdown to default
-        document.getElementById("voter-id").selectedIndex = 0;
         initData();
     }
 
-    /* --- VOTING LOGIC --- */
     function renderKandidat(elId, data, tipe) {
-        let html = '';
-        const colorRing = tipe === 'ismi' ? 'ring-blue-500' : 'ring-emerald-500';
-        const colorBg = tipe === 'ismi' ? 'bg-blue-50 border-blue-500' : 'bg-emerald-50 border-emerald-500';
-
+        const container = document.getElementById(elId);
+        container.innerHTML = '';
         data.forEach(k => {
-            let isSel = (tipe === 'ismi' && pilIsmi === k.id) || (tipe === 'kgmp' && pilKgmp === k.id);
+            const isSelected = (tipe === 'ismi' && pilIsmi === k.id) || (tipe === 'kgmp' && pilKgmp === k.id);
+            const baseClass = "flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 bg-white";
+            const stateClass = isSelected ? "border-blue-500 bg-blue-50 shadow-md transform scale-105 ring-2 ring-blue-200" : "border-slate-200 hover:border-blue-300 hover:shadow-sm";
             
-            html += `
-            <div onclick="pilih('${tipe}', '${k.id}')" 
-                 class="group relative cursor-pointer flex flex-col items-center p-4 rounded-2xl border-2 transition-all duration-200 
-                 ${isSel ? colorBg + ' shadow-md scale-105' : 'border-slate-200 bg-white hover:border-slate-400 hover:shadow-sm'}">
-                
-                ${isSel ? `
-                <div class="absolute top-2 right-2 text-${tipe === 'ismi' ? 'blue' : 'emerald'}-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-                      <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
-                    </svg>
-                </div>` : ''}
+            // Logika gambar: Jika gagal load gambar lokal, pakai avatar inisial
+            const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(k.nama)}&background=random&color=fff&size=128`;
+            const imageHtml = k.image 
+                ? `<img src="${k.image}" onerror="this.onerror=null; this.src='${avatarFallback}';" class="w-20 h-20 rounded-full object-cover object-top mb-3 shadow-sm border-2 border-slate-100" alt="${k.nama}">`
+                : `<img src="${avatarFallback}" class="w-20 h-20 rounded-full object-cover mb-3 shadow-sm border-2 border-slate-100" alt="${k.nama}">`;
 
-                <div class="w-20 h-20 mb-3 rounded-full overflow-hidden ${isSel ? 'ring-4 ' + colorRing : 'ring-2 ring-transparent group-hover:ring-slate-200'} transition-all">
-                    <img src="${k.image}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(k.nama)}&background=random&color=fff&size=128'" alt="${k.nama}" class="w-full h-full object-cover object-top">
+            const html = `
+                <div class="${baseClass} ${stateClass} w-36 sm:w-40" onclick="pilih('${tipe}', '${k.id}')">
+                    ${imageHtml}
+                    <div class="text-sm font-semibold text-center text-slate-700 leading-tight">${k.nama}</div>
                 </div>
-                <div class="text-center font-medium text-sm ${isSel ? 'text-slate-900 font-bold' : 'text-slate-600'}">
-                    ${k.nama}
-                </div>
-            </div>`;
+            `;
+            container.innerHTML += html;
         });
-        document.getElementById(elId).innerHTML = html;
     }
 
     function pilih(tipe, id) {
@@ -285,58 +270,57 @@ let k_kgmp = [
         renderKandidat('ismi-list', k_ismi, 'ismi');
         renderKandidat('kgmp-list', k_kgmp, 'kgmp');
         
-        let btnKirim = document.getElementById("btn-kirim");
-        if (pilIsmi && pilKgmp) {
+        const btnKirim = document.getElementById("btn-kirim");
+        if(pilIsmi && pilKgmp) {
             btnKirim.disabled = false;
+            btnKirim.classList.remove("opacity-50", "cursor-not-allowed");
+            btnKirim.classList.add("hover:bg-blue-700", "shadow-md");
         } else {
             btnKirim.disabled = true;
+            btnKirim.classList.add("opacity-50", "cursor-not-allowed");
+            btnKirim.classList.remove("hover:bg-blue-700", "shadow-md");
         }
     }
 
-    function konfirmasiKirimSuara() {
+    function konfirmasiKirim() {
+        if(!pilIsmi || !pilKgmp) return;
         tampilkanConfirm(
             "Konfirmasi Pilihan", 
             "Apakah Anda yakin dengan pilihan Anda? Suara yang sudah dikirim tidak dapat diubah kembali.",
-            () => kirimSuara()
+            prosesKirimSuara
         );
     }
 
-    function kirimSuara() {
-        // Record votes
+    function prosesKirimSuara() {
         k_ismi.find(k => k.id === pilIsmi).suara++;
         k_kgmp.find(k => k.id === pilKgmp).suara++;
         
-        // Remove ID from active list
         pemilih = pemilih.filter(p => p !== idAktif);
         
-        // Menampilkan pesan sukses terlebih dahulu, jika ditutup baru akan logout (kembali ke awal)
-        tampilkanAlert("Berhasil!", "Terima kasih. Suara Anda telah berhasil disimpan di dalam sistem.", "success", () => {
+        tampilkanAlert("Berhasil!", "Terima kasih! Suara Anda telah berhasil disimpan.", function() {
             logout();
         });
     }
 
-    /* --- ADMIN LOGIC --- */
-    function bukaModalAdmin() {
-        document.getElementById('admin-password').value = '';
-        document.getElementById('admin-error').classList.add('hidden');
-        document.getElementById('modal-prompt').classList.remove('hidden');
-        setTimeout(() => document.getElementById('admin-password').focus(), 100);
+    function bukaAdmin() {
+        const modal = document.getElementById("modal-admin-auth");
+        document.getElementById("admin-password").value = "";
+        modal.classList.remove("hidden");
     }
 
-    function tutupModalPrompt() {
-        document.getElementById('modal-prompt').classList.add('hidden');
+    function tutupAdminAuth() {
+        document.getElementById("modal-admin-auth").classList.add("hidden");
     }
 
-    function verifikasiAdmin(event) {
-        event.preventDefault(); // Mencegah reload form
-        let pass = document.getElementById('admin-password').value;
+    function cekPasswordAdmin() {
+        const pass = document.getElementById("admin-password").value;
         if(pass === "pengasuhan2026") {
-            tutupModalPrompt();
+            tutupAdminAuth();
             document.getElementById("login-section").classList.add("hidden");
             document.getElementById("admin-section").classList.remove("hidden");
             tampilRekap();
         } else {
-            document.getElementById('admin-error').classList.remove('hidden');
+            tampilkanAlert("Akses Ditolak", "Password yang Anda masukkan salah!");
         }
     }
 
@@ -346,71 +330,55 @@ let k_kgmp = [
     }
 
     function tampilRekap() {
-        let totalMasuk = 200 - pemilih.length;
-        let percentage = ((totalMasuk / 200) * 100).toFixed(1);
-
         let html = `
-            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8 flex justify-between items-center">
-                <div>
-                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Partisipasi Pemilih</h3>
-                    <div class="text-3xl font-bold text-slate-900 mt-1">${totalMasuk} <span class="text-lg text-slate-500 font-medium">/ 200 Suara</span></div>
-                </div>
-                <div class="text-right">
-                    <div class="text-3xl font-bold text-blue-600">${percentage}%</div>
-                    <div class="text-sm font-medium text-slate-500">Tingkat Kehadiran</div>
-                </div>
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-blue-600 mb-4 border-b pb-2">Hasil Pemilu ISMI</h3>
+                ${buatTabel(k_ismi)}
             </div>
-            
-            <div class="grid lg:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full bg-blue-500"></div> Hasil ISMI
-                    </h3>
-                    ${buatTabel(k_ismi, 'blue')}
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full bg-emerald-500"></div> Hasil KGMP
-                    </h3>
-                    ${buatTabel(k_kgmp, 'emerald')}
-                </div>
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-emerald-600 mb-4 border-b pb-2">Hasil Pemilu KGMP</h3>
+                ${buatTabel(k_kgmp)}
             </div>
         `;
+        
+        let totalMasuk = 200 - pemilih.length;
+        html += `
+            <div class="mt-6 p-4 bg-slate-50 border rounded-lg text-center">
+                <p class="text-lg text-slate-700"><strong>Total Suara Masuk:</strong> <span class="text-blue-600 text-xl">${totalMasuk}</span> / 200</p>
+            </div>
+        `;
+        
         document.getElementById("rekap-data").innerHTML = html;
     }
 
-    function buatTabel(data, colorScheme) {
+    function buatTabel(data) {
         let sorted = [...data].sort((a,b) => b.suara - a.suara);
-        
         let t = `
-        <div class="overflow-x-auto rounded-xl border border-slate-200">
-            <table class="min-w-full divide-y divide-slate-200 bg-white text-sm">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-slate-900">#</th>
-                        <th class="px-4 py-3 text-left font-semibold text-slate-900">Nama Kandidat</th>
-                        <th class="px-4 py-3 text-center font-semibold text-slate-900">Suara</th>
-                        <th class="px-4 py-3 text-center font-semibold text-slate-900">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 rounded-tl-lg">Posisi</th>
+                            <th scope="col" class="px-4 py-3">Nama Kandidat</th>
+                            <th scope="col" class="px-4 py-3 text-center">Suara</th>
+                            <th scope="col" class="px-4 py-3 rounded-tr-lg">Jabatan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
         `;
-
         sorted.forEach((k, i) => {
-            let badge = "-";
-            if (i === 0) badge = `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-100 text-amber-800">👑 Ketua</span>`;
-            else if (i === 1) badge = `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-800">🥈 Wakil</span>`;
-
+            let jab = i === 0 ? '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md font-semibold text-xs">👑 Ketua</span>' : (i === 1 ? '<span class="px-2 py-1 bg-slate-200 text-slate-700 rounded-md font-semibold text-xs">🥈 Wakil</span>' : "-");
+            let rowClass = i % 2 === 0 ? 'bg-white' : 'bg-slate-50';
             t += `
-                <tr class="hover:bg-slate-50 transition-colors ${i===0 ? 'bg-'+colorScheme+'-50/30' : ''}">
-                    <td class="px-4 py-3 whitespace-nowrap font-medium text-slate-900">${i+1}</td>
-                    <td class="px-4 py-3 whitespace-nowrap font-semibold text-slate-700">${k.nama}</td>
-                    <td class="px-4 py-3 whitespace-nowrap text-center font-bold text-${colorScheme}-600">${k.suara}</td>
-                    <td class="px-4 py-3 whitespace-nowrap text-center">${badge}</td>
+                <tr class="${rowClass} border-b last:border-0 hover:bg-slate-100">
+                    <td class="px-4 py-3 font-medium">${i+1}</td>
+                    <td class="px-4 py-3 font-bold text-slate-800">${k.nama}</td>
+                    <td class="px-4 py-3 text-center font-bold text-blue-600 text-base">${k.suara}</td>
+                    <td class="px-4 py-3">${jab}</td>
                 </tr>
             `;
         });
-        t += `</tbody></table></div>`;
+        t += "</tbody></table></div>";
         return t;
     }
 
@@ -429,47 +397,25 @@ let k_kgmp = [
         isiCSV(k_kgmp, "KGMP");
         csv += `\nTotal Suara Masuk:,${200 - pemilih.length}\n`;
 
-        let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        let url = URL.createObjectURL(blob);
         let a = document.createElement("a");
-        a.href = url;
-        a.download = "Rekapan_Pemilu_2026.csv";
-        a.style.display = "none";
-        document.body.appendChild(a);
+        a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+        a.download = "Rekapan_Pemilu_DaarElQolam.csv";
         a.click();
-        document.body.removeChild(a);
     }
 
-    /* --- CUSTOM MODAL CONTROLLERS --- */
-    function tampilkanAlert(title, message, type = "info", onClose = null) {
+    // Modal UI Functions
+    let onAlertCloseCallback = null;
+
+    function tampilkanAlert(title, message, onClose = null) {
         const modal = document.getElementById("modal-alert");
         document.getElementById("modal-alert-title").innerText = title;
         document.getElementById("modal-alert-message").innerText = message;
         
-        const iconContainer = document.getElementById("modal-alert-icon");
-        let btnClass = "w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors";
+        onAlertCloseCallback = onClose;
         
-        // Setup Icon and Colors based on Type
-        if(type === "error") {
-            iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-red-100 text-red-600";
-            iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`;
-            btnClass = "w-full px-4 py-2 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-colors";
-        } else if (type === "success") {
-            iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-emerald-100 text-emerald-600";
-            iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
-            btnClass = "w-full px-4 py-2 bg-emerald-600 text-white font-medium rounded-xl hover:bg-emerald-700 transition-colors";
-        } else {
-            iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-blue-100 text-blue-600";
-            iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>`;
-        }
-
-        // Setup dynamic button and its callback logic
-        document.getElementById("modal-alert-actions").innerHTML = `<button id="dynamic-alert-btn" class="${btnClass}">Tutup</button>`;
-        document.getElementById("dynamic-alert-btn").onclick = function() {
-            tutupModalAlert();
-            if (typeof onClose === 'function') onClose();
-        };
-
+        const actionsDiv = document.getElementById("modal-alert-actions");
+        actionsDiv.innerHTML = `<button onclick="tutupModalAlert()" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">Tutup</button>`;
+        
         modal.classList.remove("hidden");
     }
 
@@ -478,31 +424,32 @@ let k_kgmp = [
         document.getElementById("modal-alert-title").innerText = title;
         document.getElementById("modal-alert-message").innerText = message;
         
-        const iconContainer = document.getElementById("modal-alert-icon");
-        iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4 bg-amber-100 text-amber-600";
-        iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg>`;
+        onAlertCloseCallback = null; // Clear any close callback
         
-        const actionsHtml = `
-            <button onclick="tutupModalAlert()" class="w-full px-4 py-2 bg-slate-200 text-slate-800 font-medium rounded-xl hover:bg-slate-300 transition-colors">Batal</button>
-            <button id="confirm-btn-action" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors">Ya, Kirim</button>
+        const actionsDiv = document.getElementById("modal-alert-actions");
+        actionsDiv.innerHTML = `
+            <button onclick="tutupModalAlert()" class="w-full px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-medium transition-colors">Batal</button>
+            <button id="confirm-btn-action" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-sm">Ya, Kirim</button>
         `;
-        document.getElementById("modal-alert-actions").innerHTML = actionsHtml;
         
         document.getElementById("confirm-btn-action").onclick = function() {
             tutupModalAlert();
             onConfirm();
         };
-
+        
         modal.classList.remove("hidden");
     }
 
     function tutupModalAlert() {
         document.getElementById("modal-alert").classList.add("hidden");
+        if (onAlertCloseCallback) {
+            onAlertCloseCallback();
+            onAlertCloseCallback = null;
+        }
     }
 
     // Initialize application on load
     window.onload = initData;
-
 </script>
 </body>
 </html>
