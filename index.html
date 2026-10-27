@@ -17,32 +17,46 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col items-center py-10">
 
-    <!-- HALAMAN LOGIN -->
-    <div id="login-section" class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+    <!-- HALAMAN SETUP PANITIA (Hanya Muncul Sekali) -->
+    <div id="setup-section" class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
         <div class="text-center mb-6 flex flex-col items-center">
             <img src="logodarqo.png" alt="Logo Daar el-Qolam" class="w-24 h-auto mb-4" onerror="this.style.display='none'">
-            <h1 class="text-2xl font-bold text-slate-800 leading-tight">Pemilihan Umum ISMI dan KGP</h1>
+            <h1 class="text-2xl font-bold text-slate-800 leading-tight">Setup Bilik Pemilu</h1>
             <p class="text-slate-500 mt-2 font-medium">Daar el-Qolam 2</p>
         </div>
         
-        <!-- Pilihan Kategori Putra/Putri -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-slate-700 mb-2">Pilih Kategori Pemilih</label>
-            <select id="kategori-gender" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-lg font-medium">
-                <option value="">-- Pilih Putra / Putri --</option>
-                <option value="putra">Kandidat Putra</option>
-                <option value="putri">Kandidat Putri</option>
-            </select>
+        <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-4 mb-6 text-sm">
+            <strong>Perhatian Panitia:</strong> Silakan tentukan bilik ini digunakan khusus untuk santri Putra atau Putri. Pengaturan ini akan mengunci bilik.
         </div>
 
-        <!-- Pilihan ID -->
-        <div class="mb-6">
+        <div class="flex flex-col gap-3">
+            <button onclick="setBilikGender('putra')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition-colors shadow-md text-lg">
+                Setup Bilik PUTRA
+            </button>
+            <button onclick="setBilikGender('putri')" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 rounded-lg transition-colors shadow-md text-lg">
+                Setup Bilik PUTRI
+            </button>
+        </div>
+    </div>
+
+    <!-- HALAMAN LOGIN PEMILIH (Looping ke Sini) -->
+    <div id="login-section" class="hidden w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-slate-100 relative">
+        <!-- Indikator Status Bilik -->
+        <div id="status-bilik" class="absolute top-0 right-0 rounded-tr-2xl rounded-bl-2xl px-4 py-1 text-xs font-bold text-white uppercase tracking-wider"></div>
+        
+        <div class="text-center mb-6 flex flex-col items-center mt-2">
+            <img src="logo.png" alt="Logo Daar el-Qolam" class="w-24 h-auto mb-4" onerror="this.style.display='none'">
+            <h1 class="text-2xl font-bold text-slate-800 leading-tight">Pemilihan Umum ISMI dan KGP</h1>
+            <p class="text-slate-500 mt-2 font-medium" id="teks-kategori-login"></p>
+        </div>
+        
+        <div class="mb-6 mt-8">
             <label class="block text-sm font-medium text-slate-700 mb-2">Silakan pilih ID Anda (001 - 200)</label>
             <select id="voter-id" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-lg font-medium"></select>
         </div>
         
         <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md text-lg">
-            Mulai Memilih
+            Masuk ke Surat Suara
         </button>
         
         <div class="mt-8 pt-6 border-t border-slate-200 text-center">
@@ -158,16 +172,37 @@
     
     let pemilih = Array.from({length: 200}, (_, i) => String(i+1).padStart(3, '0'));
     let idAktif = null;
-    let genderAktif = null; 
+    let bilikGender = null; // Menyimpan status bilik ini secara permanen selama web dibuka
     let pilIsmi = null;
     let pilKgp = null;
 
-    function initData() {
+    // FUNGSI SETUP AWAL PANITIA
+    function setBilikGender(gender) {
+        bilikGender = gender;
+        document.getElementById("setup-section").classList.add("hidden");
+        document.getElementById("login-section").classList.remove("hidden");
+        
+        // Memperbarui UI sesuai gender
+        const statusEl = document.getElementById("status-bilik");
+        const teksKategori = document.getElementById("teks-kategori-login");
+        
+        if(gender === 'putra') {
+            statusEl.innerText = "BILIK PUTRA";
+            statusEl.className = "absolute top-0 right-0 rounded-tr-2xl rounded-bl-2xl px-4 py-1 text-xs font-bold text-white uppercase tracking-wider bg-blue-600";
+            teksKategori.innerHTML = "Daar el-Qolam 2 &bull; <span class='text-blue-600 font-bold'>Kategori Putra</span>";
+        } else {
+            statusEl.innerText = "BILIK PUTRI";
+            statusEl.className = "absolute top-0 right-0 rounded-tr-2xl rounded-bl-2xl px-4 py-1 text-xs font-bold text-white uppercase tracking-wider bg-rose-500";
+            teksKategori.innerHTML = "Daar el-Qolam 2 &bull; <span class='text-rose-500 font-bold'>Kategori Putri</span>";
+        }
+        
+        initDataId();
+    }
+
+    function initDataId() {
         let sel = document.getElementById("voter-id");
         sel.innerHTML = '<option value="">-- Pilih ID Anda --</option>';
         pemilih.forEach(p => { sel.innerHTML += `<option value="${p}">${p}</option>`; });
-        
-        document.getElementById("kategori-gender").value = "";
     }
 
     function renderKandidat(elId, data, tipe) {
@@ -191,8 +226,8 @@
         if(tipe === 'ismi') pilIsmi = id;
         if(tipe === 'kgp') pilKgp = id;
         
-        const dataIsmi = genderAktif === 'putra' ? k_ismi_pa : k_ismi_pi;
-        const dataKgp = genderAktif === 'putra' ? k_kgp_pa : k_kgp_pi;
+        const dataIsmi = bilikGender === 'putra' ? k_ismi_pa : k_ismi_pi;
+        const dataKgp = bilikGender === 'putra' ? k_kgp_pa : k_kgp_pi;
         
         renderKandidat('ismi-list', dataIsmi, 'ismi');
         renderKandidat('kgp-list', dataKgp, 'kgp');
@@ -206,14 +241,12 @@
     }
 
     function login() {
-        genderAktif = document.getElementById("kategori-gender").value;
         idAktif = document.getElementById("voter-id").value;
         
-        if(!genderAktif) return showModal("Peringatan", "Silakan pilih Kategori Putra/Putri terlebih dahulu!", [{text: "Tutup", class: "bg-blue-600 text-white"}]);
         if(!idAktif) return showModal("Peringatan", "Silakan pilih ID Pemilih terlebih dahulu!", [{text: "Tutup", class: "bg-blue-600 text-white"}]);
         
         document.getElementById("label-id").innerText = idAktif;
-        document.getElementById("subtitle-voting").innerText = `Kategori Pemilihan: Santri ${genderAktif === 'putra' ? 'Putra' : 'Putri'}`;
+        document.getElementById("subtitle-voting").innerText = `Kategori Pemilihan: Santri ${bilikGender === 'putra' ? 'Putra' : 'Putri'}`;
         
         document.getElementById("login-section").classList.add("hidden");
         document.getElementById("voting-section").classList.remove("hidden");
@@ -225,10 +258,9 @@
 
     function logout() {
         idAktif = null;
-        genderAktif = null;
-        document.getElementById("login-section").classList.remove("hidden");
         document.getElementById("voting-section").classList.add("hidden");
-        initData();
+        document.getElementById("login-section").classList.remove("hidden");
+        initDataId(); // Refresh list ID pemilih
     }
 
     function konfirmasiKirim() {
@@ -238,18 +270,17 @@
         ]);
     }
 
-    // ALUR PENGIRIMAN OTOMATIS (AUTO-REDIRECT)
     async function prosesKirimSuara() {
-        const active_k_ismi = genderAktif === 'putra' ? k_ismi_pa : k_ismi_pi;
-        const active_k_kgp = genderAktif === 'putra' ? k_kgp_pa : k_kgp_pi;
+        const active_k_ismi = bilikGender === 'putra' ? k_ismi_pa : k_ismi_pi;
+        const active_k_kgp = bilikGender === 'putra' ? k_kgp_pa : k_kgp_pi;
         
         // Simpan lokal
         active_k_ismi.find(k => k.id === pilIsmi).suara++;
         active_k_kgp.find(k => k.id === pilKgp).suara++;
         pemilih = pemilih.filter(p => p !== idAktif);
         
-        const labelIsmi = genderAktif === 'putra' ? 'ISMI Putra' : 'ISMI Putri';
-        const labelKgp = genderAktif === 'putra' ? 'KGP Putra' : 'KGP Putri';
+        const labelIsmi = bilikGender === 'putra' ? 'ISMI Putra' : 'ISMI Putri';
+        const labelKgp = bilikGender === 'putra' ? 'KGP Putra' : 'KGP Putri';
 
         const modalContent = document.getElementById("modal-content-area");
         const originalHTML = modalContent.innerHTML;
@@ -273,7 +304,7 @@
 
             if (error) throw error;
 
-            // ANIMASI BERHASIL (OTOMATIS KEMBALI KE ID TANPA KLIK TUTUP)
+            // ANIMASI BERHASIL
             modalContent.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-6 text-center">
                     <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4">
@@ -285,7 +316,7 @@
                 </div>
             `;
             
-            // Tunggu 2 detik lalu otomatis redirect ke halaman ID
+            // Tunggu sebentar lalu otomatis logout (kembali ke halaman pilih ID)
             setTimeout(() => {
                 modalContent.innerHTML = originalHTML;
                 closeModal();
@@ -403,7 +434,6 @@
     }
     function closeModal() { modal.classList.add("hidden"); }
 
-    window.onload = initData;
 </script>
 </body>
 </html>
