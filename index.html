@@ -15,11 +15,15 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col items-center py-10">
 
-    <!-- HALAMAN LOGIN -->
+   <!-- HALAMAN LOGIN -->
     <div id="login-section" class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
-        <div class="text-center mb-6">
-            <h1 class="text-2xl font-bold text-slate-800">Sistem Pemilu</h1>
-            <p class="text-slate-500 mt-1">Daar el-Qolam 2</p>
+        <div class="text-center mb-6 flex flex-col items-center">
+            <!-- Logo Daar el-Qolam -->
+            <img src="logodarqo.png" alt="Logo Daar el-Qolam" class="w-24 h-auto mb-4">
+            
+            <!-- Judul Baru -->
+            <h1 class="text-2xl font-bold text-slate-800 leading-tight">Pemilihan Umum ISMI dan KGMP</h1>
+            <p class="text-slate-500 mt-2 font-medium">Daar el-Qolam 2</p>
         </div>
         
         <div class="mb-6">
@@ -27,7 +31,7 @@
             <select id="voter-id" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-lg font-medium"></select>
         </div>
         
-        <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md text-lg">
+        <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md text-lg mt-2">
             Mulai Memilih
         </button>
         
